@@ -1,0 +1,2 @@
+<%= render "user_info.html", assigns %>
+<%= render "page_content.html" %>
