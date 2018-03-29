@@ -26,11 +26,6 @@ defmodule IdentityOidc do
 
   # TODO - cache
   def get_well_known_configuration do
-    # sp_url = IdentityOidc.get_config(:idp_sp_url) <> "/.well-known/openid-configuration"
-    # username = IdentityOidc.get_config(:idp_user)
-    # password = IdentityOidc.get_config(:idp_password)
-    # options = [hackney: [basic_auth: {username, password}]]
-
     HTTPoison.get(get_config(:idp_sp_url) <> "/.well-known/openid-configuration")
   end
 
@@ -83,19 +78,19 @@ defmodule IdentityOidc do
   # end_session_endpoint = "http://localhost:3000/openid_connect/logout"
   # {"code" => "fafa6a5e-d41e-42a9-a47b-ef714e611add", "state" => "b2005afa6735d28884a500436a36921b"}
   def get_token!(code, token_endpoint) do
-    %HTTPoison.Response{status_code: 200, body: token_response} =
-      HTTPoison.post!(
-        token_endpoint,
-        Poison.encode!(%{
-          grant_type: "authorization_code",
-          code: code,
-          client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-          client_assertion: IdentityOidc.client_assertion_jwt(token_endpoint)
-        }),
-        [{"Content-Type", "application/json"}]
-      )
-
-    Poison.decode!(token_response)
+    HTTPoison.post!(
+      token_endpoint,
+      Poison.encode!(%{
+        grant_type: "authorization_code",
+        code: code,
+        client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        client_assertion: IdentityOidc.client_assertion_jwt(token_endpoint)
+      }),
+      [{"Content-Type", "application/json"}]
+    )
+    |> Map.fetch!(:body)
+    |> Poison.decode!()
+    |> Map.fetch!("id_token")
   end
 
   def client_assertion_jwt(token_endpoint) do
