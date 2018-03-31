@@ -12,6 +12,7 @@ defmodule IdentityOidc.Application do
       supervisor(IdentityOidcWeb.Endpoint, []),
       # Start your own worker by calling: IdentityOidc.Worker.start_link(arg1, arg2, arg3)
       # worker(IdentityOidc.Worker, [arg1, arg2, arg3]),
+      IdentityOidc.Cache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

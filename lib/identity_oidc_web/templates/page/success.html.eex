@@ -1,2 +1,8 @@
+<div class="p2 bg-green white clearfix">
+  <div class="right sm-show">
+    <a href="<%= @logout_uri %>" class="btn p0 h6 white">Log out</a>
+  </div>
+  <span class="bold">Success!</span>
+</div>
 <%= render "user_info.html", assigns %>
 <%= render "page_content.html" %>

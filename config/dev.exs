@@ -47,8 +47,10 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-config :identity_oidc, :oidc_config,
+config :identity_oidc, :oidc_config, %{
   idp_sp_url: "http://localhost:3000",
   acr_values: "http://idmanagement.gov/ns/assurance/loa/1",
   redirect_uri: "http://localhost:4000/",
-  client_id: "urn:gov:gsa:openidconnect:sp:phoenix"
+  client_id: "urn:gov:gsa:openidconnect:sp:phoenix",
+  private_key_path: "config/demo_sp.key"
+}

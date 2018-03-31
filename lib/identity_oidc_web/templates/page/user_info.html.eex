@@ -1,19 +1,9 @@
-<div class="p2 bg-green white clearfix">
-  <%= if @userinfo do %>
-    <div class="right sm-show">
-      <a href="<%= @logout_uri %>" class="btn p0 h6 white">Log out</a>
-    </div>
-  <% end %>
-  <span class="bold">Success!</span>
-  <%= if @userinfo do %>
-    <span>Email: <strong><%= @userinfo[:email] %></strong></span>
-    <%= if @userinfo[:first_name] do %>
-      <span class="ml1 mr1">|</span>
-      <span>Name: <strong><%= @userinfo[:first_name] %> <%= @userinfo[:last_name] %></strong></span>
-    <% end %>
-    <%= if @userinfo[:social_security_number] do %>
-      <span class="ml1 mr1">|</span>
-      <span>SSN: <strong>###-##-<%#= @userinfo[:social_security_number].split(//).last(4).join %></strong></span>
-    <% end %>
-  <% end %>
-</div>
+<div>ACR: <strong>LOA1</strong></div>
+<div>Email: <strong><%= @userinfo["email"] %></strong></div>
+<div>UUID: <strong><%= @userinfo["sub"] %></strong></div>
+<%= if @userinfo["first_name"] do %>
+  <div>Name: <strong><%= @userinfo["first_name"] %> <%= @userinfo["last_name"] %></strong></div>
+<% end %>
+<%= if @userinfo[:social_security_number] do %>
+  <div>SSN: <strong>###-##-<%#= @userinfo[:social_security_number].split(//).last(4).join %></strong></div>
+<% end %>
