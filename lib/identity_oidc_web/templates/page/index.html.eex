@@ -1,9 +1,13 @@
 <div class="container py2">
   <h1> Login.gov Open ID Connect Phoenix</h1>
   <div class="mb1 right-align">
-      <a href="<%= @authorization_url %>" class="btn btn-outline bg-white navy">
-        <img class="align-middle" width="125" src="/images/login-gov.svg" alt="Login gov">
-      </a>
+    <%= form_tag("/auth/oidc", method: "get") do %>
+      <div>
+        <label>LOA 1 <input type="radio" name="acr_value" value="<%= Enum.at(@acr_values, 0) %>" checked /></label>
+        <label>LOA 3 <input type="radio" name="acr_value" value="<%= Enum.at(@acr_values, 1) %>"/></label>
+      </div>
+      <input type="image" src="/images/login-gov.svg" name="submit" alt="Login gov" class="btn btn-outline bg-white navy" width="175"/>
+    <% end %>
   </div>
   <%= render "page_content.html" %>
 </div>
