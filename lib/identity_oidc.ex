@@ -51,7 +51,7 @@ defmodule IdentityOidc do
     authorization_endpoint <> "?" <> URI.encode_query(query)
   end
 
-  def build_jwt(client_id, token_endpoint, private_key) do
+  def build_client_assertion(client_id, token_endpoint, private_key) do
     claims = %{
       iss: client_id,
       sub: client_id,

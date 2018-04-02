@@ -13,6 +13,7 @@ defmodule IdentityOidcWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+    get("/auth/oidc", PageController, :oidc)
     get("/auth/result", PageController, :result)
   end
 end
