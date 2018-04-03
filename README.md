@@ -1,5 +1,7 @@
 # identity-oidc-phoenix
 
+[![CircleCI](https://circleci.com/gh/18F/identity-oidc-phoenix.svg?style=svg)](https://circleci.com/gh/18F/identity-oidc-phoenix)
+
 An example of a Relying Party for OpenID Connect written as a simple Phoenix app in Elixir.
 
 ## Running locally
