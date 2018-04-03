@@ -4,14 +4,10 @@
 # than one or two lines should live in script files of their own in the
 # bin/ directory.
 
-# TODO - have sample env config and copy over
-
 all: check
 
 setup:
 	mix deps.get
-
-.env: setup
 
 check: lint test
 
@@ -21,5 +17,5 @@ lint:
 run:
 	mix phx.server
 
-test: .env $(CONFIG)
+test:
 	mix test
