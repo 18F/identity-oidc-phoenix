@@ -42,7 +42,6 @@ defmodule IdentityOidcWeb.PageController do
            IdentityOidc.exchange_code_for_token(code, token_endpoint, client_assertion),
          userinfo <- IdentityOidc.decode_jwt(id_token, public_key),
          logout_uri <- IdentityOidc.build_logout_uri(id_token, end_session_endpoint, redirect_uri) do
-      IO.inspect(userinfo)
       render(conn, "success.html", userinfo: userinfo, logout_uri: logout_uri)
     else
       {:error, error} ->
