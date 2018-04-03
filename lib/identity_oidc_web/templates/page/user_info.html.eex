@@ -1,9 +1,18 @@
-<div>ACR: <strong>LOA1</strong></div>
+<div>ACR: <strong><%= @userinfo["acr"] %></strong></div>
 <div>Email: <strong><%= @userinfo["email"] %></strong></div>
 <div>UUID: <strong><%= @userinfo["sub"] %></strong></div>
 <%= if @userinfo["first_name"] do %>
   <div>Name: <strong><%= @userinfo["first_name"] %> <%= @userinfo["last_name"] %></strong></div>
 <% end %>
-<%= if @userinfo[:social_security_number] do %>
-  <div>SSN: <strong>###-##-<%#= @userinfo[:social_security_number].split(//).last(4).join %></strong></div>
+<%= if @userinfo["address"] do %>
+  <div>Address: <strong><%= @userinfo["address"]["formatted"] %></strong></div>
+<% end %>
+<%= if @userinfo["phone"] do %>
+  <div>Phone: <strong><%= @userinfo["phone"] %></strong></div>
+<% end %>
+<%= if @userinfo["social_security_number"] do %>
+  <div>SSN: <strong><%= @userinfo["social_security_number"] %></strong></div>
+<% end %>
+<%= if @userinfo["birthdate"] do %>
+  <div>Birth Date: <strong><%= @userinfo["birthdate"] %></strong></div>
 <% end %>

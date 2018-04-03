@@ -47,6 +47,8 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
+config :identity_oidc, :cache, preload: true
+
 config :identity_oidc, :oidc_config, %{
   idp_sp_url: "http://localhost:3000",
   acr_values: [

@@ -9,31 +9,39 @@ defmodule IdentityOidc do
   use HTTPoison.Base
 
   def get_well_known_configuration(idp_sp_url) do
-    uri = uri_join(idp_sp_url, "/.well-known/openid-configuration")
-
-    case get(uri) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, body}
-
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        {:error, "Sorry, could not fetch well known configuration: #{status_code}"}
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Sorry, could not fetch well known configuration: #{reason}"}
-    end
+    idp_sp_url
+    |> uri_join("/.well-known/openid-configuration")
+    |> get()
+    |> handle_response("Sorry, could not fetch well known configuration")
   end
 
   def get_public_key(jwks_uri) do
-    case get(jwks_uri) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, body |> Map.fetch!("keys") |> List.first()}
-
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        {:error, "Sorry, could not fetch public_key: #{status_code}"}
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Sorry, could not fetch public_key: #{reason}"}
+    jwks_uri
+    |> get()
+    |> handle_response("Sorry, could not fetch public key")
+    |> case do
+      {:ok, body} -> {:ok, body |> Map.fetch!("keys") |> List.first()}
+      foo -> foo
     end
+  end
+
+  def exchange_code_for_token(code, token_endpoint, jwt) do
+    body = %{
+      grant_type: "authorization_code",
+      code: code,
+      client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+      client_assertion: jwt
+    }
+
+    token_endpoint
+    |> post(body, [{"Content-Type", "application/json"}])
+    |> handle_response("Sorry, could not exchange code")
+  end
+
+  def get_user_info(userinfo_endpoint, access_token) do
+    userinfo_endpoint
+    |> get([{"Authorization", "Bearer " <> access_token}])
+    |> handle_response("Sorry, could not fetch userinfo")
   end
 
   def build_authorization_url(client_id, acr_values, redirect_uri, authorization_endpoint) do
@@ -41,7 +49,8 @@ defmodule IdentityOidc do
       client_id: client_id,
       response_type: "code",
       acr_values: acr_values,
-      scope: "openid email",
+      scope:
+        "openid email phone address profile:birthdate profile:name profile social_security_number",
       redirect_uri: uri_join(redirect_uri, "/auth/result"),
       state: random_value(),
       nonce: random_value(),
@@ -66,27 +75,6 @@ defmodule IdentityOidc do
     |> Joken.get_compact()
   end
 
-  def exchange_code_for_token(code, token_endpoint, jwt) do
-    body = %{
-      grant_type: "authorization_code",
-      code: code,
-      client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-      client_assertion: jwt
-    }
-
-    case post(token_endpoint, body, [{"Content-Type", "application/json"}]) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"id_token" => id_token, "access_token" => access_token} = body
-        {:ok, id_token, access_token}
-
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        {:error, "Sorry, could not exchange code: #{status_code}"}
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Sorry, could not exchange code: #{reason}"}
-    end
-  end
-
   def load_sp_private_key(private_key_path) do
     JOSE.JWK.from_pem_file(private_key_path)
   end
@@ -97,19 +85,6 @@ defmodule IdentityOidc do
     |> elem(1)
   end
 
-  def get_user_info(userinfo_endpoint, access_token) do
-    case get(userinfo_endpoint, [{"Authorization", "Bearer " <> access_token}]) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, body}
-
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
-        {:error, "Sorry, could not fetch userinfo: #{status_code}"}
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "Sorry, could not fetch userinfo: #{reason}"}
-    end
-  end
-
   def build_logout_uri(id_token, end_session_endpoint, redirect_uri) do
     end_session_endpoint <>
       "?" <>
@@ -118,6 +93,19 @@ defmodule IdentityOidc do
         post_logout_redirect_uri: redirect_uri,
         state: random_value()
       )
+  end
+
+  defp handle_response(response, msg) do
+    case response do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %HTTPoison.Response{status_code: status_code}} ->
+        {:error, "#{msg}: #{status_code}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "#{msg}: #{reason}"}
+    end
   end
 
   defp random_value do

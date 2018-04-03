@@ -2,8 +2,15 @@ defmodule IdentityOidc.Cache do
   use Agent
 
   def start_link(_opts) do
-    state = get_initial_state()
-    Agent.start_link(fn -> state end, name: __MODULE__)
+    preload = Application.get_env(:identity_oidc, :cache)[:preload]
+
+    start_fn =
+      case preload do
+        true -> fn -> get_initial_state() end
+        _ -> fn -> %{} end
+      end
+
+    Agent.start_link(start_fn, name: __MODULE__)
   end
 
   def get(key) do
@@ -12,6 +19,10 @@ defmodule IdentityOidc.Cache do
 
   def get_all do
     Agent.get(__MODULE__, & &1)
+  end
+
+  def init(state) do
+    Agent.update(__MODULE__, fn _ -> state end)
   end
 
   defp get_initial_state do
